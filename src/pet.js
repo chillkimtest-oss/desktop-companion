@@ -72,14 +72,19 @@ let isBlinking = false;
 
 // --- Initialize ---
 async function init() {
+  // Delay slightly to let window fully realize (avoids GTK assertions)
+  await new Promise(r => setTimeout(r, 300));
   try {
     const [sw, sh] = await invoke('get_screen_size');
-    screenWidth = sw;
-    screenHeight = sh;
+    if (sw > 0 && sh > 0) {
+      screenWidth = sw;
+      screenHeight = sh;
+    }
     petX = screenWidth / 2 - WINDOW_SIZE / 2;
     await invoke('set_position', { x: petX, y: screenHeight - WINDOW_SIZE });
   } catch (e) {
-    console.error('Failed to get screen size:', e);
+    console.error('Failed to get screen size, using defaults:', e);
+    petX = screenWidth / 2 - WINDOW_SIZE / 2;
   }
 
   // Listen for tray events

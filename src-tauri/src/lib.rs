@@ -89,18 +89,22 @@ pub fn run() {
                 })
                 .build(app)?;
 
-            // Position window at bottom of screen
-            if let Some(window) = app.get_webview_window("main") {
-                if let Ok(Some(monitor)) = window.current_monitor() {
-                    let size = monitor.size();
-                    let scale = monitor.scale_factor();
-                    let screen_w = size.width as f64 / scale;
-                    let screen_h = size.height as f64 / scale;
-                    let _ = window.set_position(tauri::Position::Logical(
-                        tauri::LogicalPosition::new(screen_w / 2.0 - 100.0, screen_h - 200.0),
-                    ));
+            // Position window at bottom of screen (deferred to avoid GTK assertion on early access)
+            let app_handle = app.handle().clone();
+            std::thread::spawn(move || {
+                std::thread::sleep(std::time::Duration::from_millis(500));
+                if let Some(window) = app_handle.get_webview_window("main") {
+                    if let Ok(Some(monitor)) = window.current_monitor() {
+                        let size = monitor.size();
+                        let scale = monitor.scale_factor();
+                        let screen_w = size.width as f64 / scale;
+                        let screen_h = size.height as f64 / scale;
+                        let _ = window.set_position(tauri::Position::Logical(
+                            tauri::LogicalPosition::new(screen_w / 2.0 - 100.0, screen_h - 200.0),
+                        ));
+                    }
                 }
-            }
+            });
 
             Ok(())
         })
