@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chill 🧊 Desktop Pet</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: linear-gradient(180deg, #0a0a2e 0%, #1a1a4e 40%, #2d1b4e 70%, #1a0a2e 100%);
+      min-height: 100vh;
+      overflow: hidden;
+      font-family: 'Press Start 2P', monospace;
+      color: #aaddff;
+    }
+
+    /* Stars */
+    .stars {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .star {
+      position: absolute;
+      width: 2px; height: 2px;
+      background: #fff;
+      border-radius: 50%;
+      animation: twinkle var(--duration) ease-in-out infinite;
+      opacity: 0;
+    }
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.2; }
+      50% { opacity: 1; }
+    }
+
+    /* Ground */
+    #ground {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      height: 60px;
+      background: linear-gradient(180deg, #1a3a2a 0%, #0d2018 100%);
+      border-top: 2px solid #2a5a3a;
+      z-index: 1;
+    }
+    .grass-blade {
+      position: absolute;
+      bottom: 58px;
+      width: 3px;
+      background: #2a6a3a;
+      border-radius: 2px 2px 0 0;
+    }
+
+    /* Pet */
+    #pet-container {
+      position: fixed;
+      bottom: 60px;
+      width: 128px; height: 128px;
+      cursor: pointer;
+      image-rendering: pixelated;
+      z-index: 10;
+      transition: left 0.05s linear;
+    }
+    #pet-sprite {
+      width: 128px; height: 128px;
+      image-rendering: pixelated;
+      filter: drop-shadow(0 0 8px rgba(100, 200, 255, 0.3));
+    }
+    #pet-container:hover #pet-sprite {
+      filter: drop-shadow(0 0 12px rgba(100, 200, 255, 0.6));
+    }
+
+    /* ZZZ */
+    #zzz {
+      position: absolute;
+      top: -20px; right: -10px;
+      font-size: 14px;
+      color: #aaddff;
+      text-shadow: 0 0 4px rgba(100,180,255,0.6);
+      opacity: 0;
+      pointer-events: none;
+      user-select: none;
+    }
+    #zzz.visible {
+      animation: zzz-float 2s ease-in-out infinite;
+      opacity: 1;
+    }
+    @keyframes zzz-float {
+      0%, 100% { transform: translateY(0); opacity: 0.6; }
+      50% { transform: translateY(-12px); opacity: 1; }
+    }
+
+    /* State label */
+    #state-label {
+      position: fixed;
+      bottom: 200px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 10px;
+      color: rgba(170, 221, 255, 0.5);
+      z-index: 20;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+
+    /* Header */
+    #header {
+      position: fixed;
+      top: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      text-align: center;
+      z-index: 20;
+    }
+    #header h1 {
+      font-size: 20px;
+      color: #aaddff;
+      text-shadow: 0 0 10px rgba(100, 200, 255, 0.4);
+      margin-bottom: 8px;
+    }
+    #header p {
+      font-size: 8px;
+      color: rgba(170, 221, 255, 0.5);
+      line-height: 1.8;
+    }
+    #header a {
+      color: #88ccff;
+      text-decoration: none;
+    }
+    #header a:hover {
+      text-shadow: 0 0 6px rgba(100, 200, 255, 0.6);
+    }
+
+    /* Click hint */
+    #click-hint {
+      position: fixed;
+      bottom: 130px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 8px;
+      color: rgba(170, 221, 255, 0.3);
+      z-index: 20;
+      animation: hint-pulse 3s ease-in-out infinite;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+    @keyframes hint-pulse {
+      0%, 100% { opacity: 0.2; }
+      50% { opacity: 0.5; }
+    }
+
+    /* Particles on click */
+    .particle {
+      position: fixed;
+      pointer-events: none;
+      z-index: 15;
+      font-size: 16px;
+      animation: particle-rise 1s ease-out forwards;
+    }
+    @keyframes particle-rise {
+      0% { transform: translateY(0) scale(1); opacity: 1; }
+      100% { transform: translateY(-60px) scale(0.5); opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="stars" id="stars"></div>
+
+  <div id="header">
+    <h1>🧊 Chill</h1>
+    <p>Desktop Pet Companion</p>
+    <p style="margin-top: 12px;">
+      <a href="https://github.com/chillkimtest-oss/desktop-companion" target="_blank">GitHub</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/chillkimtest-oss/desktop-companion/releases" target="_blank">Download</a>
+    </p>
+  </div>
+
+  <div id="ground"></div>
+
+  <div id="pet-container">
+    <img id="pet-sprite" src="sprites/sprite-idle-128.png" alt="Chill" draggable="false" />
+    <div id="zzz">Z z z</div>
+  </div>
+
+  <div id="state-label"></div>
+  <div id="click-hint">click me!</div>
+
+<script>
+// --- Sprites ---
+const SPRITES = {
+  idle: 'sprites/sprite-idle-128.png',
+  'idle-blink': 'sprites/sprite-idle-blink-128.png',
+  happy: 'sprites/sprite-happy-128.png',
+  sad: 'sprites/sprite-sad-128.png',
+  angry: 'sprites/sprite-angry-128.png',
+  love: 'sprites/sprite-love-128.png',
+  cool: 'sprites/sprite-cool-128.png',
+  surprised: 'sprites/sprite-surprised-128.png',
+  excited: 'sprites/sprite-excited-128.png',
+  thinking: 'sprites/sprite-thinking-128.png',
+  sleeping: 'sprites/sprite-sleeping-128.png',
+  typing: 'sprites/sprite-typing-128.png',
+  eating: 'sprites/sprite-eating-128.png',
+  waving: 'sprites/sprite-waving-128.png',
+  walking: 'sprites/sprite-walking-128.png',
+  stargazing: 'sprites/sprite-stargazing-128.png',
+};
+
+// Preload
+Object.values(SPRITES).forEach(src => { const img = new Image(); img.src = src; });
+
+// --- DOM ---
+const spriteEl = document.getElementById('pet-sprite');
+const containerEl = document.getElementById('pet-container');
+const zzzEl = document.getElementById('zzz');
+const stateLabel = document.getElementById('state-label');
+const clickHint = document.getElementById('click-hint');
+
+// --- State ---
+let currentState = 'idle';
+let stateStartTime = Date.now();
+let idleSinceTime = Date.now();
+
+let petX = window.innerWidth / 2 - 64;
+let walkDirection = 1;
+const WALK_SPEED = 1.5;
+
+const CLICK_REACTIONS = ['love', 'cool', 'surprised', 'waving', 'happy', 'excited'];
+let clickReactionIndex = 0;
+let isBlinking = false;
+let clickCount = 0;
+
+// --- Stars ---
+function createStars() {
+  const container = document.getElementById('stars');
+  for (let i = 0; i < 80; i++) {
+    const star = document.createElement('div');
+    star.className = 'star';
+    star.style.left = Math.random() * 100 + '%';
+    star.style.top = Math.random() * 70 + '%';
+    star.style.setProperty('--duration', (2 + Math.random() * 4) + 's');
+    star.style.animationDelay = Math.random() * 4 + 's';
+    star.style.width = star.style.height = (1 + Math.random() * 2) + 'px';
+    container.appendChild(star);
+  }
+}
+
+// --- Grass ---
+function createGrass() {
+  const ground = document.getElementById('ground');
+  for (let i = 0; i < window.innerWidth / 8; i++) {
+    const blade = document.createElement('div');
+    blade.className = 'grass-blade';
+    blade.style.left = (i * 8 + Math.random() * 4) + 'px';
+    blade.style.height = (6 + Math.random() * 10) + 'px';
+    ground.appendChild(blade);
+  }
+}
+
+// --- Sprite ---
+function setSprite(name) {
+  if (SPRITES[name]) spriteEl.src = SPRITES[name];
+  spriteEl.style.transform = (name === 'walking' && walkDirection === -1) ? 'scaleX(-1)' : 'scaleX(1)';
+}
+
+// --- State Machine ---
+function changeState(newState) {
+  if (newState === currentState) return;
+  currentState = newState;
+  stateStartTime = Date.now();
+  zzzEl.classList.toggle('visible', newState === 'sleeping');
+  stateLabel.textContent = newState === 'idle' ? '' : newState;
+
+  switch (newState) {
+    case 'idle': setSprite('idle'); idleSinceTime = Date.now(); break;
+    case 'walking': setSprite('walking'); walkDirection = Math.random() > 0.5 ? 1 : -1; break;
+    default: setSprite(newState); break;
+  }
+}
+
+function triggerReaction(spriteName) {
+  currentState = 'reacting';
+  setSprite(spriteName);
+  stateLabel.textContent = spriteName;
+  setTimeout(() => {
+    if (currentState === 'reacting') {
+      changeState('idle');
+      scheduleNextBehavior();
+    }
+  }, 2000);
+}
+
+// --- Click ---
+function spawnParticle(x, y) {
+  const emojis = ['❄️', '✨', '💙', '🧊', '⭐'];
+  const el = document.createElement('div');
+  el.className = 'particle';
+  el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+  el.style.left = (x - 8 + (Math.random() - 0.5) * 40) + 'px';
+  el.style.top = (y - 8) + 'px';
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 1000);
+}
+
+containerEl.addEventListener('mousedown', (e) => {
+  e.preventDefault();
+  clickCount++;
+  if (clickCount >= 2) clickHint.style.display = 'none';
+
+  const reaction = CLICK_REACTIONS[clickReactionIndex];
+  clickReactionIndex = (clickReactionIndex + 1) % CLICK_REACTIONS.length;
+  triggerReaction(reaction);
+
+  for (let i = 0; i < 3; i++) spawnParticle(e.clientX, e.clientY);
+});
+
+// --- Blink ---
+function scheduleBlink() {
+  setTimeout(() => {
+    if (currentState === 'idle' && !isBlinking) {
+      isBlinking = true;
+      setSprite('idle-blink');
+      setTimeout(() => {
+        if (currentState === 'idle') setSprite('idle');
+        isBlinking = false;
+      }, 150);
+    }
+    scheduleBlink();
+  }, 2000 + Math.random() * 5000);
+}
+
+// --- Autonomous Behavior ---
+function scheduleNextBehavior() {
+  setTimeout(() => {
+    if (currentState === 'reacting') { scheduleNextBehavior(); return; }
+    pickRandomBehavior();
+  }, 6000 + Math.random() * 12000);
+}
+
+function pickRandomBehavior() {
+  if (Date.now() - idleSinceTime > 3 * 60 * 1000 && currentState === 'idle') {
+    changeState('sleeping');
+    setTimeout(() => {
+      if (currentState === 'sleeping') { changeState('idle'); scheduleNextBehavior(); }
+    }, 20000 + Math.random() * 20000);
+    return;
+  }
+
+  const hour = new Date().getHours();
+  const isNight = hour >= 21 || hour < 5;
+
+  const behaviors = [
+    { state: 'walking', weight: 30, duration: [4000, 10000] },
+    { state: 'thinking', weight: 15, duration: [2500, 5000] },
+    { state: 'eating', weight: 12, duration: [2500, 4500] },
+    { state: 'happy', weight: 10, duration: [2000, 3500] },
+    { state: 'excited', weight: 8, duration: [2000, 3000] },
+    { state: 'typing', weight: 10, duration: [3000, 7000] },
+    { state: 'idle', weight: 15, duration: [2000, 6000] },
+  ];
+  if (isNight) behaviors.push({ state: 'stargazing', weight: 20, duration: [4000, 8000] });
+
+  const total = behaviors.reduce((s, b) => s + b.weight, 0);
+  let roll = Math.random() * total;
+  let chosen = behaviors[0];
+  for (const b of behaviors) { roll -= b.weight; if (roll <= 0) { chosen = b; break; } }
+
+  changeState(chosen.state);
+  const dur = chosen.duration[0] + Math.random() * (chosen.duration[1] - chosen.duration[0]);
+  setTimeout(() => {
+    if (currentState === chosen.state) changeState('idle');
+    scheduleNextBehavior();
+  }, dur);
+}
+
+// --- Walking Tick ---
+function tick() {
+  if (currentState === 'walking') {
+    petX += WALK_SPEED * walkDirection;
+    const maxX = window.innerWidth - 128;
+    if (petX <= 0) { petX = 0; walkDirection = 1; spriteEl.style.transform = 'scaleX(1)'; }
+    else if (petX >= maxX) { petX = maxX; walkDirection = -1; spriteEl.style.transform = 'scaleX(-1)'; }
+    containerEl.style.left = petX + 'px';
+  }
+}
+
+// --- Init ---
+createStars();
+createGrass();
+containerEl.style.left = petX + 'px';
+setInterval(tick, 50);
+scheduleBlink();
+scheduleNextBehavior();
+</script>
+</body>
+</html>
