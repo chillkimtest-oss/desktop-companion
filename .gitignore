@@ -26,3 +26,4 @@ node_modules/
 # Sprite copies in src (canonical source is assets/sprites/)
 src/sprites/
 *.deb
+.vercel

@@ -1,8 +1,1 @@
-{
-  "buildCommand": "",
-  "outputDirectory": "web",
-  "framework": null,
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
-  ]
-}
+{"buildCommand": "", "outputDirectory": "web", "framework": null}

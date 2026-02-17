@@ -68,6 +68,15 @@
       width: 128px; height: 128px;
       image-rendering: pixelated;
       filter: drop-shadow(0 0 8px rgba(100, 200, 255, 0.3));
+      transition: none;
+    }
+    #pet-container.walking {
+      animation: walk-bob 0.4s ease-in-out infinite;
+    }
+    @keyframes walk-bob {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      25% { transform: translateY(-6px) rotate(-4deg); }
+      75% { transform: translateY(-6px) rotate(4deg); }
     }
     #pet-container:hover #pet-sprite {
       filter: drop-shadow(0 0 12px rgba(100, 200, 255, 0.6));
@@ -274,6 +283,7 @@ function changeState(newState) {
   currentState = newState;
   stateStartTime = Date.now();
   zzzEl.classList.toggle('visible', newState === 'sleeping');
+  containerEl.classList.toggle('walking', newState === 'walking');
   stateLabel.textContent = newState === 'idle' ? '' : newState;
 
   switch (newState) {
